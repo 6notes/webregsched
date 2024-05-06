@@ -61,7 +61,7 @@ export default function Signup() {
       });
       onSignIn(newUser);
     } catch (e) {
-      if (e.name === "UserNotConfirmedException") {
+      if (String(e).startsWith("UserNotConfirmedException")) {
         handleUserNotConfirmedException({ username, onSignIn });
       } else {
         onError(e);
@@ -80,7 +80,7 @@ export default function Signup() {
       setIsLoading(false);
       setNewUser(newUser);
     } catch (e) {
-      if (e.name === "UsernameExistsException") {
+      if (String(e).startsWith("UsernameExistsException")) {
         await handleUsernameExistsException({
           onSignIn: (newUser) => setNewUser(newUser),
           password: fields.password,
