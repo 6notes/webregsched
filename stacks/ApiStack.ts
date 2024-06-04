@@ -1,12 +1,17 @@
 import { Api, Config, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
+import { envNames, getDomainNameForEnv } from "./helpers";
 
-export function ApiStack({ stack }: StackContext) {
+export function ApiStack({ stack, app }: StackContext) {
   const { table } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
 
   // Create the API
+  const validEnvName = envNames.find((envName) => envName === app.stage);
   const api = new Api(stack, "Api", {
+    customDomain: validEnvName
+      ? getDomainNameForEnv(validEnvName).apiDomainName
+      : undefined,
     defaults: {
       authorizer: "iam",
       function: {
@@ -25,7 +30,7 @@ export function ApiStack({ stack }: StackContext) {
 
   // Show the API endpoint in the output
   stack.addOutputs({
-    ApiEndpoint: api.url,
+    ApiEndpoint: api.customDomainUrl || api.url,
   });
 
   // Return the API resource
